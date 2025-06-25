@@ -1,0 +1,114 @@
+<!-- DK: check -->
+
+<div class="order-list-container">
+  <div *ngIf="loading" class="loading">
+    <p>Loading orders...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading || orders.length > 0" class="orders-list-section">
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <h3>Filters</h3>
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="paymentFilter">Payment description:</label>
+          <input
+            id="paymentFilter"
+            type="text"
+            [(ngModel)]="paymentDescriptionFilter"
+            placeholder="Enter payment description..."
+            class="filter-input"
+          />
+        </div>
+        
+        <div class="filter-group">
+          <label for="countryFilter">Country:</label>
+          <select
+            id="countryFilter"
+            [(ngModel)]="countryFilter"
+            class="filter-select"
+          >
+            <option value="">All countries</option>
+            <option *ngFor="let country of countries" [value]="country">
+              {{ country }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="filter-actions">
+          <button 
+            type="button" 
+            (click)="applyFilters()" 
+            class="apply-filters-btn"
+          >
+            Filter
+          </button>
+          <button 
+            type="button" 
+            (click)="clearFilters()" 
+            class="clear-filters-btn"
+            [disabled]="!paymentDescriptionFilter && !countryFilter"
+          >
+            Clear filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="orders.length === 0 && !error" class="no-orders">
+      <p>No orders found.</p>
+    </div>
+
+    <div *ngIf="orders.length > 0" class="orders-list">
+      <h2>Orders ({{ orders.length }})</h2>
+      
+      <div class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Order ID</th>
+              <th>Payment description</th>
+              <th>Amount</th>
+              <th>Address</th>
+              <th>Due date</th>
+              <th>Date created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders" class="order-row">
+              <td class="order-number">{{ order.orderNumber }}</td>
+              <td class="order-id">{{ order.orderId }}</td>
+              <td class="payment">{{ order.paymentDescription || 'N/A' }}</td>
+              <td class="amount">
+                <span *ngIf="order.amount; else noAmount">
+                  {{ order.amount }} {{ order.currency || 'USD' }}
+                </span>
+                <ng-template #noAmount>N/A</ng-template>
+              </td>
+              <td class="address">
+                <span *ngIf="order.street || order.town || order.country; else noAddress">
+                  {{ order.street }}<span *ngIf="order.street && (order.town || order.country)">, </span>
+                  {{ order.town }}<span *ngIf="order.town && order.country">, </span>
+                  {{ order.country }}
+                </span>
+                <ng-template #noAddress>N/A</ng-template>
+              </td>
+              <td class="due-date">
+                <span *ngIf="order.paymentDueDate; else noDueDate">
+                  {{ order.paymentDueDate | date:'short' }}
+                </span>
+                <ng-template #noDueDate>N/A</ng-template>
+              </td>
+              <td class="created-date">{{ order.createdAt | date:'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 
